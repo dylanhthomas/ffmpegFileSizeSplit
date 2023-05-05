@@ -42,7 +42,7 @@ namespace ffmpegFileSizeSplit
                     string ss = "";
                     if(i>0)
                     {
-                        var probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART{i - 1}.mp4\"");
+                        var probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=duration -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART{i - 1}.avi\"");
                         probe.Start();
                         dur += Convert.ToDouble(probe.StandardOutput.ReadToEnd())-4;
                         ss = " -ss "+dur;
@@ -53,10 +53,10 @@ namespace ffmpegFileSizeSplit
                     Run(useAlt, file, name, limit, args[2], ref result, ref error, ss, i);
                     if(i==1)
                     {
-                        var probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=size -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART0.mp4\"");
+                        var probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=size -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART0.avi\"");
                         probe.Start();
                         double d0 = Convert.ToDouble(probe.StandardOutput.ReadToEnd());
-                        probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=size -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART1.mp4\"");
+                        probe = NewProcess("ffprobe.exe", $"-v error -select_streams v:0 -show_entries format=size -of default=noprint_wrappers=1:nokey=1 \"{args[2]}\\{name} PART1.avi\"");
                         probe.Start();
                         double d1 = Convert.ToDouble(probe.StandardOutput.ReadToEnd());
                         probe.WaitForExit();
@@ -100,8 +100,8 @@ namespace ffmpegFileSizeSplit
         static void Run(bool alt, string file, string name, int limit, string outDir, ref string result, ref string error, string ss = "", int i=0)
         {
             var p = NewProcess("ffmpeg.exe", alt?
-                $"-y -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s mov_text -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.mp4\" -loglevel error" : 
-                $"-y{ss} -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s mov_text -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.mp4\" -loglevel error");
+                $"-y -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s mov_text -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.avi\" -loglevel error" : 
+                $"-y{ss} -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s mov_text -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.avi\" -loglevel error");
             p.Start();
             result = (alt? "Warning Alt method used - please double check file size" :"") + p.StandardOutput.ReadToEnd();
             error = p.StandardError.ReadToEnd();
@@ -109,8 +109,8 @@ namespace ffmpegFileSizeSplit
             if (error != "")
             {
                 p = NewProcess("ffmpeg.exe", alt?
-                    $"-y -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s dvdsub -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.mp4\" -loglevel error":
-                    $"-y{ss} -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s dvdsub -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.mp4\" -loglevel error");
+                    $"-y -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s dvdsub -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.avi\" -loglevel error":
+                    $"-y{ss} -i \"{file}\" -map 0 -c:v copy -c:a copy -c:s dvdsub -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.avi\" -loglevel error");
                 p.Start();
                 result = (alt ? "Warning Alt method used - please double check file size" : "") + p.StandardOutput.ReadToEnd();
                 error = p.StandardError.ReadToEnd();
@@ -119,8 +119,8 @@ namespace ffmpegFileSizeSplit
             if (error != "")
             {
                 p = NewProcess("ffmpeg.exe", alt?
-                    $"-y -i \"{file}\" -c copy -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.mp4\" -loglevel error":
-                    $"-y{ss} -i \"{file}\" -c copy -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.mp4\" -loglevel error");
+                    $"-y -i \"{file}\" -c copy -segment_time {limit} -f segment -reset_timestamps 1 \"{outDir}\\{name} PART%1d.avi\" -loglevel error":
+                    $"-y{ss} -i \"{file}\" -c copy -fs {limit} -reset_timestamps 1 \"{outDir}\\{name} PART{i}.avi\" -loglevel error");
                 p.Start();
                 result = (alt ? "Warning Alt method used - please double check file size _ " : "") + "Subtitle Skipped " + p.StandardOutput.ReadToEnd();
                 error = p.StandardError.ReadToEnd();
